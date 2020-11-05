@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/calendar.css">
+</head>
+<body>
+    <div id="app">
+        <app-calendar v-on:pass v-bind:propsdata = "lists"></app-calendar>
+        <!-- <div class="calendar">
+            <div class="calendar-head">
+                <div class="calendar_info">
+                    <i v-on:click="preMonth" class="fas fa-caret-left"></i>
+                    <div class="date">
+                        <span> {{ viewMonth }}월 </span>
+                        <span> {{ dateText }} </span>
+                    </div>
+                    <i v-on:click="nextMonth" class="fas fa-caret-right"></i>
+                </div>
+            </div>
+            <div class="calendar-body">
+                <div class="weekday">
+                    <div>일</div>
+                    <div>월</div>
+                    <div>화</div>
+                    <div>수</div>
+                    <div>목</div>
+                    <div>금</div>
+                    <div>토</div>
+                </div>
+                <div class="monthdays">
+                </div>
+            </div>
+        </div> -->
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://kit.fontawesome.com/c8d24dec70.js" crossorigin="anonymous"></script>
+    <script>
+        // var now = new Date();
+        // var first = new Date(now.getFullYear(), now.getMonth(), 1);
+        // console.log(now)
+        // var userdate = new Date(now.getFullYear()-1, now.getMonth()-1, 1);
+        // console.log(now.getMonth()+1)
+        // var today = new Date();
+        // var nowMonth = today.getMonth() + 1
+        // 양수와 음수를 활용 math.abs() 음수의 절대값구하기
+        const appCalendar = {
+            template: `
+            <div class="calendar" >
+                <div class="calendar-head">
+                    <div class="calendar_info" v-on:click="passEv">
+                        <i class="fas fa-caret-left prev"></i>
+                        <div class="date">
+                            <span> {{ propsdata.viewMonth }}월 </span>
+                            <span> {{ propsdata.dateText }} </span>
+                        </div>
+                        <i class="fas fa-caret-right next"></i>
+                    </div>
+                </div>
+                <div class="calendar-body">
+                <div class="weekday">
+                    <div>일</div>
+                    <div>월</div>
+                    <div>화</div>
+                    <div>수</div>
+                    <div>목</div>
+                    <div>금</div>
+                    <div>토</div>
+                </div>
+                <div class="monthdays">
+                </div>
+            </div>
+            </div>`,
+            props: ["propsdata"],
+            methods:{
+                passEv:function(){
+                    this.$emit('pass')
+                },
+            }
+        }
+
+        new Vue({
+            el:'#app',
+            data:{
+                lists:{
+                    viewMonth: '',
+                    year: '',
+                    today: new Date(),
+                    dateText: '',
+                    crrdate:'',
+                }
+            },
+            mounted(){
+                let monthDays = document.querySelector('div.monthdays')
+                this.lists.dateText = this.lists.today.toDateString()
+                let lastDay = new Date(this.lists.today.getFullYear(), this.lists.today.getMonth()+1, 0).getDate()
+                // console.log(days)
+                this.lists.year = this.lists.today.getFullYear()
+                this.lists.viewMonth = (this.lists.today.getMonth() + 1);
+                let days = ''
+                for(let i = 1; i <= lastDay; i++){
+                    days += `<div>${i}</div>`
+                    monthDays.innerHTML = days
+                }//템플릿
+                console.log(this.lists.today.getMonth());
+                console.log(this.lists.today.toDateString());
+                console.log(new Date(this.lists.today.getFullYear(), this.lists.today.getMonth()+1, 0));
+                // (function(){
+                //     console.log(new Date(this.lists.today.getFullYear(), this.lists.today.getMonth(), 1));
+                    
+                // })
+            },
+            components:{
+                'app-calendar':appCalendar,
+
+            },
+            computed:{
+                changeMonth: function(){
+                    console.log(this.lists.viewMonth)
+                    return this.lists.viewMonth
+                }
+            },
+            methods:{
+                pass: function(e){
+                    console.log(e)
+                //     preMonth: function(){
+                //     console.log(this.lists.today)
+                //     if (this.lists.viewMonth <= 1) {
+                //         this.lists.viewMonth = 13
+                //         this.lists.year--
+                //     }
+                //     this.lists.viewMonth--
+                // },
+                // nextMonth: function(){
+                //     // console.log(1)
+                //     if (this.lists.viewMonth >= 12) {
+                //         this.lists.viewMonth = 0
+                //         this.lists.year++
+                //     }
+                //     this.lists.viewMonth++
+                // },
+                }
+                
+            }
+        })
+    </script>
+</body>
+</html>
