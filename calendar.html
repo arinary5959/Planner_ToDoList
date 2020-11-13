@@ -9,13 +9,13 @@
 </head>
 <body>
     <div id="app">
-        <app-calendar v-on:pass v-bind:propsdata = "lists"></app-calendar>
+        <app-calendar v-on:pass="changeMonth" v-bind:propsdata = "lists"></app-calendar>
         <!-- <div class="calendar">
             <div class="calendar-head">
                 <div class="calendar_info">
                     <i v-on:click="preMonth" class="fas fa-caret-left"></i>
                     <div class="date">
-                        <span> {{ viewMonth }}월 </span>
+                        <span> {{ view_month }}월 </span>
                         <span> {{ dateText }} </span>
                     </div>
                     <i v-on:click="nextMonth" class="fas fa-caret-right"></i>
@@ -51,10 +51,10 @@
             template: `
             <div class="calendar" >
                 <div class="calendar-head">
-                    <div class="calendar_info" v-on:click="passEv">
+                    <div class="calendar_info" v-on:click="passEv($event)">
                         <i class="fas fa-caret-left prev"></i>
                         <div class="date">
-                            <span> {{ propsdata.viewMonth }}월 </span>
+                            <span> {{ propsdata.view_month }}월 </span>
                             <span> {{ propsdata.dateText }} </span>
                         </div>
                         <i class="fas fa-caret-right next"></i>
@@ -71,13 +71,16 @@
                     <div>토</div>
                 </div>
                 <div class="monthdays">
+                    <div  v-for= "item in propsdata.calendarDays">{{ item }}</div>
                 </div>
             </div>
             </div>`,
             props: ["propsdata"],
             methods:{
-                passEv:function(){
-                    this.$emit('pass')
+                passEv:function(e){
+                    if(e.target.tagName == "I"){
+                        this.$emit('pass', e)
+                    }else{return}
                 },
             }
         }
@@ -86,64 +89,176 @@
             el:'#app',
             data:{
                 lists:{
-                    viewMonth: '',
-                    year: '',
                     today: new Date(),
+                    // today_year:'',
+                    // today_month:'',
+                    // today_day:'',
+                    // today_date:'',
+                    view_year: '',
+                    view_month: '',
+                    view_day: '',
+                    // view_date: '',
+                    // year: '',
                     dateText: '',
-                    crrdate:'',
+                    // crrdate:'',
+                    firstDayIndex:'',
+                    lastDayIndex:'',
+                    lastDay:'',
+                    calendarDays:[],
                 }
             },
             mounted(){
+                let self = this.lists
+                self.view_year = self.today.getFullYear()
+                self.view_month = this.lists.today.getMonth() + 1
+                // self.view_day = self.today.getDay() //0번 일요일
+                //
+                self.dateText = self.today.toDateString()
+                // console.log(new Date(2020, 11, 0)) //11->12월이고 그 앞의 날짜이므로 11월의 마지막 날
+                // console.log(new Date(2020, 11, 0)) //11월의 첫째날은 11-1 (10(index) == 11월)
+                self.lastDay = new Date(self.view_year, self.view_month, 0).getDate()
+                self.firstDayIndex = new Date(self.view_year, self.view_month - 1, 1).getDay()
+                self.lastDayIndex = new Date(self.view_year, self.view_month, 0).getDay()
+                // console.log(new Date(self.today.getFullYear(), self.today.getMonth()+1, 0).getDay())
                 let monthDays = document.querySelector('div.monthdays')
-                this.lists.dateText = this.lists.today.toDateString()
-                let lastDay = new Date(this.lists.today.getFullYear(), this.lists.today.getMonth()+1, 0).getDate()
-                // console.log(days)
-                this.lists.year = this.lists.today.getFullYear()
-                this.lists.viewMonth = (this.lists.today.getMonth() + 1);
-                let days = ''
-                for(let i = 1; i <= lastDay; i++){
-                    days += `<div>${i}</div>`
-                    monthDays.innerHTML = days
-                }//템플릿
-                console.log(this.lists.today.getMonth());
-                console.log(this.lists.today.toDateString());
-                console.log(new Date(this.lists.today.getFullYear(), this.lists.today.getMonth()+1, 0));
-                // (function(){
-                //     console.log(new Date(this.lists.today.getFullYear(), this.lists.today.getMonth(), 1));
-                    
-                // })
+                let prevDate = new Date(self.view_year, self.view_month - 1, 0).getDate() - self.firstDayIndex
+                console.log(prevDate)
+                console.log(self.firstDayIndex)
+                for(let i = this.lists.firstDayIndex; i > 0; i--){
+                    self.calendarDays.push(prevDate++)
+                }
+                for(let i = 1; i <= this.lists.lastDay; i++){
+                    self.calendarDays.push(i)
+                }
+                let nextDate = 1
+                for(let i = self.lastDayIndex; i < 6; i++){
+                    self.calendarDays.push(nextDate++)
+                }
             },
             components:{
                 'app-calendar':appCalendar,
 
             },
             computed:{
-                changeMonth: function(){
-                    console.log(this.lists.viewMonth)
-                    return this.lists.viewMonth
-                }
+                // changeInfo: function(){
+                //     let self = this.lists
+                //     self.lastDay = new Date(self.view_year, self.view_month, 0).getDate()
+                //     self.firstDayIndex = new Date(self.view_year, self.view_month - 1, 1).getDay()
+                //     self.lastDayIndex = new Date(self.view_year, self.view_month, 0).getDay()
+                //     // console.log(lastDay)
+                //     // return this.lists.lastDay
+                // },
+                // changeCalendar:function(){
+                //     let self = this.lists
+                //     let change =[]
+                //     let prevDate = new Date(self.view_year, self.view_month - 1, 0).getDate() - self.firstDayIndex
+                //     for(let i = this.lists.firstDayIndex; i > 0; i--){
+                //         change.push(prevDate++)
+                //     // monthDays.innerHTML = calendarDays
+                    
+                //     }
+                //     for(let i = 1; i <= this.lists.lastDay; i++){
+                //         change.push(i)
+                //         // monthDays.innerHTML = calendarDays
+                //     }
+                //     let nextDate = 1
+                //     for(let i = self.lastDayIndex; i < 6; i++){
+                //         change.push(nextDate++)
+                //         // monthDays.innerHTML = calendarDays
+                //     }
+                //     self.calendarDays = change
+                //     console.log(self.calendarDays)
+                //     console.log(change)
+                // }
+            
             },
             methods:{
-                pass: function(e){
-                    console.log(e)
-                //     preMonth: function(){
-                //     console.log(this.lists.today)
-                //     if (this.lists.viewMonth <= 1) {
-                //         this.lists.viewMonth = 13
-                //         this.lists.year--
-                //     }
-                //     this.lists.viewMonth--
-                // },
-                // nextMonth: function(){
-                //     // console.log(1)
-                //     if (this.lists.viewMonth >= 12) {
-                //         this.lists.viewMonth = 0
-                //         this.lists.year++
-                //     }
-                //     this.lists.viewMonth++
-                // },
+                changeMonth: function(e){
+                    console.log(e.target)
+                    console.log("event pass")
+                    if(e.target.classList.contains('next')){
+                        console.log('next')
+                        this.nextMonth()
+                        this.changeInfo()
+                    }else if(e.target.classList.contains('prev')){
+                        console.log('prev')
+                        this.prevMonth()
+                    }
+                },
+                prevMonth: function(){
+                    console.log(this.lists.today)
+                    if (this.lists.view_month <= 1) {
+                        this.lists.view_month = 13
+                        this.lists.view_year--
+                    }
+                    this.lists.view_month--
+                    this.changeInfo()
+                    this.changeCalendar()
+                },
+                nextMonth: function(){
+                    // console.log(1)
+                    // this.lists.view_year = this.lists.today_year
+                    if (this.lists.view_month >= 12) {
+                        this.lists.view_month = 0
+                        this.lists.view_year++
+                    }
+                    this.lists.view_month++
+                    this.changeInfo()
+                    this.changeCalendar()
+                },
+                changeInfo: function(){
+                    let self = this.lists
+                    self.lastDay = new Date(self.view_year, self.view_month, 0).getDate()
+                    self.firstDayIndex = new Date(self.view_year, self.view_month - 1, 1).getDay()
+                    self.lastDayIndex = new Date(self.view_year, self.view_month, 0).getDay()
+                    // console.log(lastDay)
+                    // return this.lists.lastDay
+                },
+                changeCalendar:function(){
+                    let self = this.lists
+                    let change =[]
+                    let prevDate = new Date(self.view_year, self.view_month - 1, 0).getDate() - self.firstDayIndex + 1
+                    for(let i = this.lists.firstDayIndex; i > 0; i--){
+                        change.push(prevDate++)
+                    // monthDays.innerHTML = calendarDays
+                    
+                    }
+                    for(let i = 1; i <= this.lists.lastDay; i++){
+                        change.push(i)
+                        // monthDays.innerHTML = calendarDays
+                    }
+                    let nextDate = 1
+                    for(let i = self.lastDayIndex; i < 6; i++){
+                        change.push(nextDate++)
+                        // monthDays.innerHTML = calendarDays
+                    }
+                    self.calendarDays = change
+                    console.log(self.calendarDays)
+                    console.log(change)
                 }
-                
+            
+            //     changeCalendar:function(){
+            //         let self = this.lists
+            //         let change =[]
+            //         let prevDate = new Date(self.view_year, self.view_month - 1, 0).getDate() - self.firstDayIndex
+            //         for(let i = this.lists.firstDayIndex; i > 0; i--){
+            //             change.push(prevDate++)
+            //         // monthDays.innerHTML = calendarDays
+                    
+            //         }
+            //         for(let i = 1; i <= this.lists.lastDay; i++){
+            //             change.push(i)
+            //             // monthDays.innerHTML = calendarDays
+            //         }
+            //         let nextDate = 1
+            //         for(let i = self.lastDayIndex; i < 6; i++){
+            //             change.push(nextDate++)
+            //             // monthDays.innerHTML = calendarDays
+            //         }
+            //         self.calendarDays = change
+            //         console.log(self.calendarDays)
+            //         console.log(change)
+            //     }
             }
         })
     </script>
